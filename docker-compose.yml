@@ -1,0 +1,39 @@
+version: "3.9"
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:?Set MSSQL_SA_PASSWORD before starting Docker Compose}"
+      MSSQL_PID: "Express"
+    ports:
+      - "1433:1433"
+    healthcheck:
+      test: [ "CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q \"SELECT 1\"" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__SqlServer: "Server=sqlserver,1433;Database=ProductApiAssessment;User Id=sa;Password=${MSSQL_SA_PASSWORD:?Set MSSQL_SA_PASSWORD before starting Docker Compose};TrustServerCertificate=True;"
+      JwtSettings__Issuer: "ProductApiAssessment"
+      JwtSettings__Audience: "ProductApiAssessment.Users"
+      JwtSettings__SecretKey: "${JWT_SECRET:?Set JWT_SECRET before starting Docker Compose}"
+      JwtSettings__AccessTokenExpirationMinutes: "60"
+      JwtSettings__RefreshTokenExpirationInDays: "7"
+      SeedUsers__AdminPassword: "${SEED_ADMIN_PASSWORD:?Set SEED_ADMIN_PASSWORD before starting Docker Compose}"
+      SeedUsers__UserPassword: "${SEED_USER_PASSWORD:?Set SEED_USER_PASSWORD before starting Docker Compose}"
+      EnableSwagger: "true"
+      UseHttpsRedirection: "false"
+    ports:
+      - "5000:80"
+    depends_on:
+      - sqlserver

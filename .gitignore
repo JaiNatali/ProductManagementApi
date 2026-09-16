@@ -1,0 +1,45 @@
+# Build output
+**/bin/
+**/obj/
+TestResults/
+
+# Visual Studio and VS Code local state
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Runtime logs and local diagnostics
+**/Logs/
+*.log
+
+# Local environment and secret files
+.env
+.env.*
+!.env.example
+**/*.local.json
+**/appsettings.Local.json
+**/appsettings.*.Local.json
+**/appsettings.Development.json
+**/appsettings.Production.json
+**/secrets.json
+**/secrets.*.json
+
+# Local HTTPS certificates and signing material
+*.pfx
+*.p12
+*.key
+*.pem
+*.cer
+*.crt
+
+# Coverage and test artifacts
+coverage/
+coverage.xml
+*.trx
+
+# OS files
+.DS_Store
+Thumbs.db
